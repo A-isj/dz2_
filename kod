@@ -1,0 +1,122 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define n 3
+#define r 3
+int main(){
+	printf("num of elements: ");
+
+
+	printf("num of ribs: ");
+	
+
+	int table[n][n];
+	int matrix[n][r];
+
+	printf("Enter matrix\n");
+
+	for (int i = 0; i<n; i++){
+		for (int j = 0; j<n; j++){
+			table[i][j] = 0;
+		}
+		for (int j = 0; j<r; j++){
+			matrix[i][j] = 0;
+		}
+	}
+
+	for (int i = 0; i<n; i++){
+		printf("%d: ", i);
+		for (int j = 0; j<r; j++){
+			scanf("%d", &matrix[i][j]);
+		}
+	}
+
+	int error = 0;
+	for (int j = 0; j<r; j++){
+		int el1 = -1, el2 = -1;
+		for (int i = 0; i<n; i++){
+			if (matrix[i][j] != 0){
+				if (el1 == -1){
+					el1 = i;
+				}
+				else if (el2 == -1){
+					el2 = i;
+				}
+				else {
+					error = 1;
+					j = r;
+					i = n;
+				}
+			}
+		}
+		if (el1 == -1 || el2 == -1){
+			if (!(el1 == -1 && el2 == -1)){
+				error = 1;
+				j = r;
+			}
+		}
+		table[el1][el2] += 1;
+	}
+	if (error){
+		printf("matrix not valid\n");
+		exit(9);
+	}
+
+	int graph_check = 1;
+	for (int i = 0; i<n; i++){
+		int temp_graph_check = 0;
+		for (int j = 0; j<n; j++){
+			if (table[i][j] == 1)
+				temp_graph_check = 1;
+
+			if (table[j][i] == 1)
+				temp_graph_check = 1;
+		}
+		if (temp_graph_check == 0)
+			graph_check = 0;
+	}
+	if (graph_check == 0){
+		printf("unrelated graph\n");
+	}
+	else {
+		printf("related graph\n");
+	}
+
+	for (int i = 0; i<n; i++) {
+		printf("%d: ", i);
+		for (int j = 0; j<n; j++) {
+			printf("%d ", table[i][j]);
+		}
+		printf("\n");
+	}
+
+	FILE *fp = fopen("graph.dot", "w");
+
+	if (fp == NULL) {
+		printf("Unable to create file\n");
+		exit(0);
+	}
+
+	fputs("digraph G {", fp);
+	for (int i = 0; i<n; i++){
+		char temp_char = i + '0';
+		fputs(&temp_char, fp);
+		fputs("; ", fp);
+	}
+	for (int i = 0; i<n; i++){
+		for (int j = 0; j<n; j++){
+			for (int k = 0; k<table[i][j]; k++){
+				fputc(i + '0', fp);
+				fputs("->", fp);
+				fputc(j + '0', fp);
+				fputs("; ", fp);
+			}
+		}
+	}
+	fputs("}", fp);
+
+
+
+	fclose(fp);
+	return 0;
+}
